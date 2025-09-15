@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     } = req;
 
     switch (method) {
-        case "GET": // Get one contact
+        case "GET":
             try {
                 const contact = await Contact.findById(id);
                 if (!contact) return res.status(404).json({ success: false });
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             }
             break;
 
-        case "PUT": // Update one contact
+        case "PUT":
             try {
                 const contact = await Contact.findByIdAndUpdate(id, req.body, {
                     new: true,
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
             }
             break;
 
-        case "DELETE": // Delete one contact
+        case "DELETE":
             try {
                 const deleted = await Contact.deleteOne({ _id: id });
                 if (!deleted.deletedCount)
