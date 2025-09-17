@@ -47,7 +47,7 @@ const TopNav = () => {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("auth"); // clear login
+        localStorage.removeItem("auth");
         router.push("/login");
     };
 

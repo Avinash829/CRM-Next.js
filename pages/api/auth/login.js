@@ -30,7 +30,12 @@ export default async function handler(req, res) {
                 { expiresIn: "1d" }
             );
 
-            res.status(200).json({ success: true, token });
+            // send user info along with token
+            res.status(200).json({
+                success: true,
+                token,
+                user: { id: user._id, email: user.email, role: user.role }
+            });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

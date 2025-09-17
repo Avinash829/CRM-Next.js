@@ -1,21 +1,35 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+// pages/login.js
+import { useState, useContext } from "react";
+import { useRouter } from "next/router";
+import { UserContext } from "@/context/UserContext";
+import { useApi } from "@/lib/api";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const { login } = useContext(UserContext);
+    const api = useApi();
     const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError("");
 
-        if (email === 'admin@crm.com' && password === 'admin123') {
-            localStorage.setItem("auth", "true");
-            router.push('/');
-        } else {
-            alert('Invalid credentials!');
+        try {
+            const res = await api.post("/auth/login", { email, password });
+            if (res.success) {
+                login(res.user, res.token);
+                router.push("/");
+            } else {
+                setError(res.message || "Invalid login credentials");
+            }
+        } catch (err) {
+            setError(err.message || "Login failed");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -29,9 +43,7 @@ export default function LoginPage() {
 
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-600">
-                            Email
-                        </label>
+                        <label className="block text-sm font-medium text-gray-600">Email</label>
                         <input
                             type="email"
                             value={email}
@@ -43,9 +55,7 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-600">
-                            Password
-                        </label>
+                        <label className="block text-sm font-medium text-gray-600">Password</label>
                         <input
                             type="password"
                             value={password}
@@ -56,21 +66,18 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                        disabled={loading}
+                        className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
                     >
-                        Sign In
+                        {loading ? "Signing in..." : "Sign In"}
                     </button>
                 </form>
-
-                <p className="mt-4 text-sm text-center text-gray-500">
-                    Don’t have an account?{' '}
-                    <a href="#" className="text-blue-600 hover:underline">
-                        Sign up
-                    </a>
-                </p>
             </div>
         </div>
     );
 }
+
